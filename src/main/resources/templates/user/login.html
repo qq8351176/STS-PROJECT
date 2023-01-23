@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户登录</title>
+<link rel="stylesheet" href="/layui/css/layui.css">
+
+<style>
+	body{
+	background:url('/img/loginbg.png')
+	}
+	form
+	{
+		width:400px;
+		margin:150px auto;
+		background-color:#FFF;
+		padding: 30px 0px;
+		border-radius: 10px;
+	}
+	/* 标题样式*/
+	form h1
+	{
+	text-align: center;
+	margin-bottom: 30px;/** 下边距 **/ 
+	}
+</style>
+</head>
+<body>
+	<form action="" method="post" class="layui-form">
+		<h1>用户登录</h1>
+		
+		<div class="layui-form-item">
+			<label class="layui-form-label">账号</label>
+			<div class="layui-input-inline">
+				<input type="text" name="username" placeholder="请输入账号"
+				class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">密码</label>
+			<div class="layui-input-inline">
+				<input type="password" name="password" placeholder="请输入密码"
+				class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn">登录</button>
+		    </div>
+		</div>
+		
+		<div th:text="${error}">
+			
+		</div>
+	</form>
+</body>
+</html>

@@ -1,0 +1,33 @@
+## yaml的配置文件
+## 采用缩进的方式组织配置， 类似python
+## 端口   默认端口是tomcat的8080
+server:
+  port: 8080
+  
+## 数据源-> 数据库
+spring:
+  datasource:
+    ## MySQL的驱动程序
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    ## 数据库的连接字符串
+    url: jdbc:mysql://127.0.0.1:3306/taskmgr?serverTimezone=GMT%2b8&useUnicode=true&characterEncoding=utf-8&useSSL=false
+    ## 数据库的账号
+    username: root
+    ## 数据库的密码   必须使用你自己的账号和密码
+    password: 8351176
+    
+## thymeleaf配置
+  thymeleaf:
+    ## 关闭缓存   开发者模式下，应该关闭，生产环境下，应该打开，以提升执行速度
+    cache: false
+    ## 前缀  所有的动态页面，都到去这个路径查找
+    prefix: classpath:/templates/
+    ## 后缀  模版页面的格式，采用html格式
+    suffix: .html
+    
+    
+## 配置MyBatis
+mybatis:
+  configuration:
+    ## 开启MyBatis的驼峰命名法
+    map-underscore-to-camel-case: true
