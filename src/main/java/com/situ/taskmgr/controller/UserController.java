@@ -1,5 +1,6 @@
 package com.situ.taskmgr.controller;
 
+import com.situ.taskmgr.entity.Result;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.situ.taskmgr.entity.User;
+import com.situ.taskmgr.entity.*;
 import com.situ.taskmgr.service.UserService;
 
 @Controller
@@ -46,6 +48,39 @@ public class UserController {
 				e.printStackTrace();
 				model.addAttribute("error",e.getMessage());
 				return "user/login";
+			}
+		}
+		
+		@GetMapping("/logout")
+		public String logout(HttpSession session)
+		{
+			session.invalidate();//清楚session对象
+			
+			return "redirect:/user/login";
+			
+		}
+		
+		@GetMapping("edit")
+		public String edit()
+		{
+			return "user/edit";
+		}
+		
+		/**
+		 * 修改个人信息的处理 返回一个json格式的数据
+		 */
+		@PostMapping("/edit")
+		@ResponseBody //返回json格式
+		public Result edit(User user,HttpSession session) {
+			//取出当前登录的用户
+			User loginUser = (User) session.getAttribute("user");
+			user.setId(loginUser.getId());
+			try {
+				userService.edit(user);
+				return Result.success();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return Result.error(e.getMessage());
 			}
 		}
 		

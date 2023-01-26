@@ -1,0 +1,68 @@
+<blockquote class="layui-elem-quote">个人设置</blockquote>
+
+<form class="layui-form">
+	<div class="layui-form-item">
+		<label class = "layui-form-label">账号</label>
+		<div class="layui-input-inline">
+			<input type="text" name="username" placeholder="请输入账号"  class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class = "layui-form-label">电话</label>
+		<div class="layui-input-inline">
+			<input type="text" name="phone" placeholder="请输入电话"  class="layui-input">
+		</div> 
+	</div>
+		<div class="layui-form-item">
+		<label class = "layui-form-label">邮箱</label>
+		<div class="layui-input-inline">
+			<input type="text" name="email" placeholder="请输入邮箱"  class="layui-input">
+		</div> 
+	</div>
+	
+	
+	<div class="layui-form-item">
+		<label class = "layui-form-label">姓名</label>
+		<div class="layui-input-inline">
+			<input type="text" name="realname" placeholder="请输入姓名"  class="layui-input">
+		</div> 
+	</div>
+	
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<button class="layui-btn" lay-submit lay-filter="edit">
+			修改
+			</button>
+		</div> 
+	</div>
+	
+</form>
+
+<script>
+layui.use(['form'],function(){
+	var form = layui.form;
+	//表单的提交
+	form.on('submit(edit)',function(data){
+		$.ajax({
+			url: '/user/edit', //请求地址
+			data: data.field,
+			type: 'post',
+			dataType: 'json',
+			success: function(result){ //请求成功时的回调函数
+				if(result.code == 0)
+				{
+				layer.msg('修改成功');
+				}
+				else
+				{
+				layer.msg(result.msg);
+				}
+			},
+			error:  function(){ //请求失败时的回调函数
+				layer.msg('请求失败');
+			}
+			});	
+	return false;
+	});
+});
+</script>
