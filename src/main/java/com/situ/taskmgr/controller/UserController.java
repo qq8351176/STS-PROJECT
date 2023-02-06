@@ -1,6 +1,5 @@
 package com.situ.taskmgr.controller;
 
-import com.situ.taskmgr.entity.Result;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,8 +72,11 @@ public class UserController {
 		@ResponseBody //返回json格式
 		public Result edit(User user,HttpSession session) {
 			//取出当前登录的用户
-			User loginUser = (User) session.getAttribute("user");
-			user.setId(loginUser.getId());
+			if(user.getId() == null)
+			{
+				User loginUser = (User) session.getAttribute("user");
+				user.setId(loginUser.getId());
+			}
 			try {
 				userService.edit(user);
 				return Result.success();
@@ -84,4 +86,71 @@ public class UserController {
 			}
 		}
 		
+		/**
+		 * 修改密码的页面
+		 */
+		@GetMapping("/modifyPwd")
+		public String modifyPwd()
+		{
+			return "user/modifyPwd";
+		}
+		
+		@PostMapping("/modifyPwd")
+		@ResponseBody
+		public Result modifyPwd(String oldPassword,String newPassword,
+				String rePassword,HttpSession session)
+		{
+			User user = (User) session.getAttribute("user");
+			
+			try {
+				userService.modifyPwd(oldPassword,newPassword,rePassword,user.getId());
+				//清除登录信息
+				session.invalidate();
+				
+				return Result.success();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return Result.error(e.getMessage());
+			}
+					
+		}
+		
+		/**
+		 * 员工列表的页面
+		 */
+		@GetMapping("/list")
+		public String list()
+		{
+			return "user/list";
+		}
+		
+		@PostMapping("/list")
+		@ResponseBody
+		public Result list(Integer page,Integer limit) {
+			if(page == null) {
+			  //不分页
+				return Result.success(userService.getAll());
+			}
+			else {
+				return Result.success(userService.getByPage(page, limit));
+			}
+		}
+		
+		@GetMapping("/add")
+		public String add() {
+			return "user/add";
+		}
+		@PostMapping("/add")
+		@ResponseBody
+		public Result add(User user) {
+			try {
+				userService.add(user);
+				//添加成功
+				return Result.success();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return Result.error(e.getMessage());
+			}
+		}
 }

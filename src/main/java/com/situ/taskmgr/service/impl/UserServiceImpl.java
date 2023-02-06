@@ -151,5 +151,40 @@ public class UserServiceImpl implements UserService{
 		return new PageInfo<>(list);
 	}
 	
+	@Override
+	public int modifyPwd(String oldPassword, String newPassword, String rePassword, Integer id)
+			throws Exception{
+		if(oldPassword.length() <3 ||
+				oldPassword.length() > 16) {
+			throw new Exception("旧密码必须是3-16位的字符串");
+		}
+		if(newPassword.length() <3 ||
+				newPassword.length() > 16) {
+			throw new Exception("新密码必须是3-16位的字符串");
+		}
+		if(!newPassword.equals(rePassword))
+		{
+			throw new Exception("两次密码不一致");
+		}
+		
+		//2.逻辑 根据用户的ID查询密码
+		User user = userMapper.selectById(id);
+		String md5Pwd = MD5Util.getMD5(oldPassword);
+		
+		if(!user.getPassword().equals(md5Pwd))
+		{
+			throw new Exception("旧密码不正确");
+		}
+		
+		if(oldPassword.equals(newPassword)) {
+			throw new Exception("新旧密码不能一样");
+		}
+		
+		//新密码加密
+		user.setPassword(MD5Util.getMD5(newPassword));
+		
+		//修改密码
+		return userMapper.update(user);
+	}
 	
 }

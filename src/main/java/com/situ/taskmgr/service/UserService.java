@@ -32,5 +32,16 @@ public interface UserService {
 	 * 分页查询 借助pagehelper
 	 */
 	PageInfo getByPage(Integer page,Integer limit);
+
+	/**
+	 * 修改密码的方法
+	 * @param oldPassword
+	 * @param newPassword
+	 * @param rePassword
+	 * @param id
+	 * @return
+	 */
+	int modifyPwd(String oldPassword, String newPassword, String rePassword, Integer id)
+			throws Exception;
 	
 }

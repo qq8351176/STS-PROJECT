@@ -1,0 +1,95 @@
+<blockquote class="layui-elem-quote">员工列表</blockquote>
+<table id="user-list" lay-filter="user-list">
+	
+</table>
+
+<script type="text/html" id="bar">
+	<a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="disable">禁用</a>
+	<a class="layui-btn layui-btn-sm" lay-event="enable">启用</a>
+</script>
+
+<script>
+	layui.use(['table'],function(){
+		var table = layui.table;
+		
+		//请求数据 渲染表格
+		table.render({
+			elem: '#user-list',
+			url: '/user/list', //数据请求的url
+			method: 'post',  //post请求
+			page: true,		//开启分页
+			cols: [ [		//绑定列的数据
+				{field: 'id',title: 'ID'},
+				{field: 'username',title: '账号'},
+				{field: 'phone',title: '电话'},
+				{field: 'email',title: '邮箱'},
+				{field: 'realname',title: '姓名'},
+				{field: 'role',title: '角色',templet: function(d){
+					return['员工','管理员'][d.role];
+					}},
+				{field: 'status',title: '状态',templet: function(d){
+						return['正常','禁用'][d.status];
+				}},	
+				{title: '操作', width: 150, toolbar: '#bar'},//绑定列工具条
+			] ],
+			parseData: function(res){
+				return{
+					code: res.code,
+					msg: res.msg,
+					count: res.data.total,
+					data: res.data.list,
+				};
+			}
+		});
+		//禁用和启用的点击事件
+		table.on('tool(user-list)',function(obj){
+			if(obj.event == 'disable'){
+				//禁用
+				//ajax
+				$.ajax({
+					url: '/user/edit',
+					data: {id: obj.data.id, status: 1},
+					type: 'post',
+					dataType: 'json',
+					success: function(result){
+						if(result.code == 0){
+							layer.msg('禁用成功');
+							table.reload('user-list');
+						}	else{
+							layer.msg(result.msg)
+						}
+						
+					},
+					error: function(){
+						layer.msg("请求失败");
+					}
+				});
+			}
+			else if(obj.event == 'enable'){
+				//启用
+				//ajax
+				$.ajax({
+					url: '/user/edit',
+					data: {id: obj.data.id, status: 0},
+					type: 'post',
+					dataType: 'json',
+					success: function(result){
+						if(result.code == 0){
+							layer.msg('启用成功');
+							table.reload('user-list');
+						}	else{
+							layer.msg(result.msg)
+						}
+						
+					},
+					error: function(){
+						layer.msg("请求失败");
+					}
+				});
+			}
+		});
+	});
+	
+
+	
+</script>
