@@ -35,7 +35,7 @@ public class TaskServiceImpl implements TaskService{
 		int code = taskmapper.insert(task);
 		
 		for(Join join : task.getJoins()) {
-			join.setTaskid(task.getId());
+			join.setTaskId(task.getId());
 			
 			//保存到数据库当中去
 			code = joinmapper.insert(join);
@@ -87,11 +87,12 @@ public class TaskServiceImpl implements TaskService{
 		calendar.set(Calendar.SECOND, 0);	
 		calendar.set(Calendar.MILLISECOND, 0);  
 		
-		calendar.setWeekDate(calendar.getWeeksInWeekYear(),
+		calendar.setWeekDate(calendar.getWeekYear(),
 				calendar.get(Calendar.WEEK_OF_YEAR) + (calendar.get(Calendar.DAY_OF_WEEK) == 1?-1:0), 
 				2);
 		//下周的周一
 		Date start = calendar.getTime();
+		
 		calendar.setWeekDate(calendar.getWeekYear(), calendar.get(Calendar.WEEK_OF_YEAR)+1, 
 				2);
 		

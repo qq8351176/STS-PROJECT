@@ -1,0 +1,97 @@
+<blockquote class="layui-elem-quote">任务周历</blockquote>
+
+<style>
+	.task-week,.task-list{
+		display: grid;
+		grid-template-columns: repeat(7,1fr);/**7列平均分配**/
+		background: #FAFAFA;
+		grid-row-gap: 10px;
+	}
+	
+	.week-day{
+	background: #F2F2F2;
+	text-align: center;
+	font-size: 14px;
+	height: 50px;
+	line-hight: 50px;
+	border:1px solid #EEE;
+	}
+	.task{
+		background-color: #01AAED;
+		border: 1px solid #FAFAFA;
+		border-radius: 5px;
+		padding:5px;
+	}
+</style>
+
+<!-- 显示周几 -->
+<div class="task-week"></div>
+<!-- 任务列表-->
+<div class="task-list"></div>
+
+<script>
+$.ajax({
+	url: '/task/week',
+	type: 'post',
+	dataType: 'json',
+	success: function(result){
+		//绘制周一到周日
+		showWeekDay();
+		
+		showTask(result.data);
+	},
+	error: function(){
+		layer.msg('请求失败');
+	}
+});
+
+
+function showTask(tasks){
+	$.each(tasks,function(index,item){
+		var day = getMonday();
+		day.setHours(0,0,0,0);
+		var start = new Date(item.start +":00");
+		start.setHours(0,0,0,0)
+		var end = new Date(item.end+":00");
+		end.setHours(0,0,0,0);
+		
+		var left = parseInt( (start*1-day*1)/(1000*60*60*24))+1;
+		var right = parseInt((end*1-day*1)/(1000*60*60*24))+2;
+		
+		if(left < 1) left=1;
+		if(right > 8)right=8;
+		
+		var task = $('<div class="task"></div>');
+		task.text(item.title);
+		//显示的起点和终点
+		task.css({
+			'grid-colum-start': parseInt(left).toString(),
+			'grid-colum-end': parseInt(right).toString(),
+		});
+		
+		//将任务放到div中
+		$('.task-list').append(task);
+	});
+}
+function getMonday(){
+	var d = new Date();
+	var day = d.getDay();
+	var diff = d.getDate()-day + (day==0?-6:1);
+	return new Date(d.setDate(diff));
+};
+
+
+function showWeekDay(){
+	var days = ['周一','周二','周三','周四','周五','周六','周日'];
+	var day = getMonday();
+	
+	for(var i = 0;i<7;i++){
+		var div = $('<div class="week-day"></div>');
+		
+		div.text(days[i] + ' ' + (day.getMonth()+1) + "/" + day.getDate());
+		day.setDate(day.getDate()+1);
+		
+		$('.task-week').append(div);
+	}
+}
+</script>

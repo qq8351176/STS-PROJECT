@@ -10,6 +10,6 @@ import lombok.ToString;
 public class Join {
 	private Integer id;
 	private Integer type;
-	private Integer taskid;
+	private Integer taskId;
 	private Integer userId;
 }

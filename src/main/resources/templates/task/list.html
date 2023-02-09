@@ -1,0 +1,83 @@
+<blockquote class="layui-elem-quote">添加员工</blockquote>
+
+<a class="layui-btn" href="javascript:;" id="task-add">添加任务</a>
+
+
+
+<table id="task-list" lay-filter="task-list">
+
+</table>
+
+<script type="text/html" id="bar">
+ <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+</script>
+
+<script>
+	layui.use(['table'],function(){
+		var table = layui.table;
+		
+		table.render({
+			elem: '#task-list',
+			url: '/task/list',
+			method: 'post',
+			page: true,
+			cols: [ [  //两个方括号之间必须有空格
+				{field:'id',title:'ID'},
+				{field:'title',title:'标题'},
+				{field:'content',title:'内容'},
+				{field:'target',title:'目标'},
+				{field:'result',title:'结果'},
+				{field:'createTime',title:'创建时间'},
+				{field:'start',title:'开始时间'},
+				{field:'end',title:'结束时间'},
+				{field:'status',title:'状态',templet:function(d){
+					return ['未开始','进行中','已完成','已取消'][d.status];
+				}},
+				{field:'createrId',title:'创建人',templet:function(d){
+					return d.creater.realname;
+				}},
+				{title: '操作', toolbar:'#bar'},
+				] ],
+				parseData: function(res){
+					return{
+						code: res.code,
+						msg: res.msg,
+						count: res.data.total,
+						data: res.data.list,
+					}
+				}
+		});
+		
+		//添加按钮的动作
+		$('#task-add').click(function(){
+			//layui的弹出层
+			layer.open({
+				title: '创建任务',
+				type: 2,	//打一个内部的窗口
+				area: ['800px','600px'],
+				content: '/task/add',
+				end: function(){
+					//  关闭后的回调
+					table.reload('task-list');
+				}
+				
+			});
+		});
+		
+		table.on('tool(task-list)',function(obj){
+			if(obj.event == 'edit'){
+				layer.open({
+					title: '编辑任务',
+					type: 2,
+					area: ['800px','600px'],
+					content: '/task/edit?id='+obj.data.id,
+					end: function(){
+						//关闭后的回调
+						//刷新列表
+						table.reload('task-list');
+					}
+				});
+			}
+		});
+	});
+</script>

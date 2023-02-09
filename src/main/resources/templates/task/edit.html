@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>创建任务</title>
+<!-- 引入layui的css -->
+<link rel="stylesheet" href="/layui/css/layui.css">
+</head>
+<body>
+
+<form class="layui-form" style="margin:15px;">
+	<div class="layui-form-item">
+		<label class="layui-form-label">标题</label>
+		<div class="layui-input-block">
+			<input type="text" name="title" placeholder = "请输入任务的标题" class="layui-input">
+		</div>
+	</div>
+	
+	<div class="layui-form-item">
+		<label class="layui-form-label">内容</label>
+		<div class="layui-input-block">
+			<textarea name="content" class="layui-textarea" placeholder = "请输入任务内容"></textarea>
+		</div>
+	</div>
+	
+	<div class="layui-form-item">
+		<label class="layui-form-label">目标</label>
+		<div class="layui-input-block">
+			<textarea name="target" class="layui-textarea" placeholder = "请输入任务目标"></textarea>
+		</div>
+	</div>
+	
+	<div class="layui-form-item">
+		<label class="layui-form-label">结果</label>
+		<div class="layui-input-block">
+			<textarea name="result" class="layui-textarea" placeholder = "请输入任务结果"></textarea>
+		</div>
+	</div>
+	
+	<div class="layui-form-item">
+		<label class="layui-form-label">时间</label>
+		<div class="layui-input-inline">
+			<input type="text" name="start" class="layui-input " id="start">
+		</div>
+		<div class="layui-form-mid">~</div>
+		<div class="layui-input-inline">
+			<input type="text" name="end" class="layui-input " id="end">
+		</div>
+	</div>
+	
+	<!-- 发起人  -->
+	<div class="layui-form-item">
+		<label class="layui-form-label">发起人</label>
+		<div class="layui-input-block" id="promoter"></div>
+	</div>
+	
+	<!-- 负责人  -->
+	<div class="layui-form-item">
+		<label class="layui-form-label">负责人</label>
+		<div class="layui-input-block" id="charger"></div>
+	</div>
+	
+	<!-- 参与人  -->
+	<div class="layui-form-item">
+		<label class="layui-form-label">参与人</label>
+		<div class="layui-input-block" id="joiner"></div>
+	</div>
+	
+	
+	
+	<div class="layui-form-item" > 
+		<label class="layui-form-label">状态</label>
+		<div class="layui-input-block">
+			<input type="radio" name="status" value="0" title="未开始" >
+			<input type="radio" name="status" value="1" title="进行中" >
+			<input type="radio" name="status" value="2" title="已完成" >
+			<input type="radio" name="status" value="3" title="已取消" >
+		</div>
+	</div>
+	
+	<div class="layui-form-item" > 
+		<input type="hidden" name="id" th:value="${param.id}">
+		<div class="layui-input-block">
+			<button class="layui-btn" lay-submit lay-filter="edit">编辑</button>
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript" src="/layui/layui.js"></script>
+<script>
+	layui.use(['form','laydate'],function(){
+		var form = layui.form,
+			laydate = layui.laydate,
+			$ = layui.$;
+		
+		getTask();
+		
+		function getTask(){
+			$.ajax({
+				url: '/task/get',
+				data: {id: [[${param.id}]]},
+				type: 'post',
+				dataType: 'json',
+				success:function(result){
+					if(result.code == 0){
+						$('input[name="title"]').val(result.data.title);
+						$('textarea[name="content"]').val(result.data.content);
+						$('textarea[name="target"]').val(result.data.target);
+						$('textarea[name="result"]').val(result.data.result);
+						
+						//显示时间
+						laydate.render({elem:'#start',value: result.data.start+":00",type: 'datetime'});
+						laydate.render({elem:'#end',value: result.data.end+":00",type: 'datetime'});
+						
+						$('input[name="status"][value="'+result.data.status+'"]').attr('checked','checked');
+						
+						getUsers(result.data.joins);
+						
+					}else{
+						layer.msg(result.msg);
+					}
+				},
+				error: function(){
+					layer.msg();
+					
+				}
+			});
+		}
+		
+		//渲染时间组件
+		
+		
+		function getUsers(joins){
+			$.ajax({
+			url: '/user/list',
+			type: 'post',
+			dataType: 'json',
+			success: function(result){
+				if(result.code == 0){
+					//显示用户
+					showUsers(result.data);
+					
+					//选中用户
+					checkUsers(joins);
+				}else{
+					layer.msg(result.msg);
+				}
+			},
+			error: function(){
+				layer.msg("请求失败");
+			}
+			
+			});
+		}
+		
+		function checkUsers(joins){
+			//遍历所有的关联用户
+			$.each(joins,function(index,item){
+				$(['#joiner','#charger','#promoter'][item.type]).find('input[value="'+item.userId+'"]')
+				.attr('checked','checked')
+			});
+			form.render();
+		};
+		//显示用户
+		function showUsers(users){
+			var html = "";
+			$.each(users,function(index,item){
+				html += '<input type="checkbox" value="'
+				+item.id+'" title="'+item.realname
+				+'" lay-skin="primary">';
+				
+			});
+			
+			//参与DIV中
+			$('#promoter').html(html);
+			$('#charger').html(html);
+			$('#joiner').html(html);
+			
+			form.render();
+		}
+		form.on('submit(edit)',function(data){
+			
+			//便利所有的参与人
+			var joins = [];//定义一个数组 放参与关系
+			//发起人
+			$('#promoter input[type="checkbox"]:checked').each(function(){
+				var userId = $(this).val();
+				joins.push({userId:userId,type: 2,taskId:[[${param.id}]]});
+			});
+
+			$('#charger input[type="checkbox"]:checked').each(function(){
+				var userId = $(this).val();
+				joins.push({userId:userId,type: 1,taskId:[[${param.id}]]});
+			});
+			
+			$('#joiner input[type="checkbox"]:checked').each(function(){
+				var userId = $(this).val();
+				joins.push({userId:userId,type: 0,taskId:[[${param.id}]]});
+			});
+			//放到表单数据中
+			data.field.joins = joins;
+			
+			//ajax请求来发送
+			$.ajax({
+				url: '/task/edit',
+				data: JSON.stringify(data.field),	//用json格式来传
+				contentType: 'application/json; charset=utf-8',
+				type: 'post',
+				dataType: 'json',
+				success: function(result){
+					if(result.code == 0){
+						//添加成功
+						parent.layer.msg("编辑成功");
+						parent.layer.closeAll('iframe');
+						
+					}else{
+						layer.msg(result.msg);
+					}
+				},
+				error: function(){
+					layer.msg('请求失败');
+				}
+				
+			});
+			return false;
+		}); 
+	});
+</script>
+</body>
+</html>

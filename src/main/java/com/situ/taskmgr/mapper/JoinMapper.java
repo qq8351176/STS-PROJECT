@@ -18,7 +18,7 @@ public interface JoinMapper {
 	@Insert({
 		"insert into `join`", //要用反单引号
 		"(type, task_id, user_id)",
-		"values(#{type},#{taskId},#{userId}",
+		"values(#{type},#{taskId},#{userId})",
 	})
 	int insert(Join join);
 	
@@ -49,5 +49,5 @@ public interface JoinMapper {
 		"select * from `join`",
 		"where user_id=#{userId}",
 	})
-	List<Join> selectByUserId(Integer userid);
+	List<Join> selectByUserId(Integer userId);
 }
